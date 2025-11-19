@@ -3,59 +3,112 @@
 <head>
 <meta charset="utf-8">
 <title>Generar Regla JSON</title>
+
 <style>
     body {
         font-family: Arial, sans-serif;
-        margin: 20px;
+        text-align: center;
+        margin: 40px;
+        background: #f5f5f5;
     }
-    input {
-        padding: 6px;
-        margin: 4px 0;
-        width: 250px;
+    .box {
+        background: white;
+        padding: 25px;
+        border-radius: 10px;
+        width: 600px;
+        margin: auto;
+        box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        text-align: left;
+    }
+    input, select {
+        padding: 8px;
+        width: 97%;
+        margin-top: 5px;
+        margin-bottom: 15px;
     }
     button {
-        padding: 8px 15px;
+        padding: 10px 18px;
         margin-right: 10px;
         cursor: pointer;
     }
-    #json {
-        background: #f0f0f0;
-        padding: 10px;
+    pre {
+        background: #eee;
+        padding: 12px;
         border-radius: 5px;
         white-space: pre-wrap;
         word-break: break-all;
     }
+    /* Toast de copiado */
+#toast {
+    visibility: hidden;
+    min-width: 200px;
+    background-color: #4CAF50;
+    color: white;
+    text-align: center;
+    border-radius: 8px;
+    padding: 12px;
+    position: fixed;
+    z-index: 999;
+    left: 50%;
+    bottom: 40px;
+    transform: translateX(-50%);
+    font-size: 16px;
+    opacity: 0;
+    transition: opacity 0.4s, bottom 0.4s;
+}
+#toast.show {
+    visibility: visible;
+    opacity: 1;
+    bottom: 60px;
+}
+
 </style>
+
 </head>
 <body>
 
-<h2>Generador de condiciones</h2>
+<h2>🔧 Generador de Reglas JSON</h2>
 
-<label>Campo:</label><br>
-<input id="campo"><br><br>
+<div class="box">
 
-<label>Operador:</label><br>
-<input id="operador"><br><br>
+    <label>Campo:</label>
+    <input id="campo">
 
-<label>Valor:</label><br>
-<input id="valor"><br><br>
+    <label>Operador:</label>
+    <select id="operador">
+        <option value="=">= Igual</option>
+        <option value="!=">!= Diferente</option>
+        <option value="<">< Menor que</option>
+        <option value=">">> Mayor que</option>
+        <option value="<="><= Menor o igual</option>
+        <option value=">=">>= Mayor o igual</option>
+        <option value="in">IN (lista)</option>
+        <option value="nin">NOT IN (lista)</option>
+        <option value="contiene">contiene</option>
+        <option value="no contiene">no contiene</option>
+    </select>
 
-<button onclick="agregar()">Agregar condición</button>
-<button onclick="generar()">Generar JSON</button>
-<button onclick="copiar()">Copiar JSON</button>
+    <label>Valor:</label>
+    <input id="valor" placeholder='Ej: 100  ó  a,b,c  para IN'>
 
-<h3>Condiciones agregadas</h3>
-<pre id="lista"></pre>
+    <button onclick="agregar()">Agregar condición</button>
+    <button onclick="generar()">Generar JSON</button>
+    <button onclick="copiar()">Copiar JSON</button>
+    <div id="toast">✔️ JSON copiado</div>
+    <h3>Condiciones agregadas</h3>
+    <pre id="lista"></pre>
 
-<h3>JSON final</h3>
-<pre id="json"></pre>
+    <h3>JSON Final</h3>
+    <pre id="json"></pre>
+
+</div>
 
 <script>
 let condiciones = [];
 
 function agregar() {
     const campo = document.getElementById("campo").value.trim();
-    const operador = document.getElementById("operador").value.trim();
+    const operador = document.getElementById("operador").value;
     const valorInput = document.getElementById("valor").value.trim();
 
     if (!campo || !operador || !valorInput) {
@@ -63,7 +116,15 @@ function agregar() {
         return;
     }
 
-    const valor = isNaN(valorInput) ? valorInput : Number(valorInput);
+    let valor;
+
+    // Si es IN o NIN → convertir "a,b,c" en ["a","b","c"]
+    if (operador === "in" || operador === "nin") {
+        valor = valorInput.split(",").map(v => v.trim()).filter(v => v !== "");
+    } else {
+        // Detectar número
+        valor = isNaN(valorInput) ? valorInput : Number(valorInput);
+    }
 
     condiciones.push({
         campo: campo,
@@ -75,14 +136,13 @@ function agregar() {
         JSON.stringify(condiciones, null, 2);
 
     document.getElementById("campo").value = "";
-    document.getElementById("operador").value = "";
     document.getElementById("valor").value = "";
 }
 
 function generar() {
     const json = { condiciones: condiciones };
 
-    // JSON en formato compacto
+    // JSON compacto
     document.getElementById("json").textContent =
         JSON.stringify(json);
 }
@@ -90,15 +150,17 @@ function generar() {
 function copiar() {
     const texto = document.getElementById("json").textContent.trim();
 
-    if (!texto) {
-        alert("No hay JSON para copiar.");
-        return;
-    }
+    if (!texto) return;
 
-    navigator.clipboard.writeText(texto)
-        .then(() => alert("JSON copiado al portapapeles ✔️"))
-        .catch(err => alert("Error al copiar: " + err));
+    navigator.clipboard.writeText(texto).then(() => {
+        let toast = document.getElementById("toast");
+        toast.className = "show";
+        setTimeout(() => {
+            toast.className = toast.className.replace("show", "");
+        }, 2000);
+    });
 }
+
 </script>
 
 </body>
