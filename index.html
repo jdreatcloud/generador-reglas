@@ -2,18 +2,47 @@
 <html>
 <head>
 <meta charset="utf-8">
-<title>Generador Regla JSON</title>
+<title>Generar Regla JSON</title>
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        margin: 20px;
+    }
+    input {
+        padding: 6px;
+        margin: 4px 0;
+        width: 250px;
+    }
+    button {
+        padding: 8px 15px;
+        margin-right: 10px;
+        cursor: pointer;
+    }
+    #json {
+        background: #f0f0f0;
+        padding: 10px;
+        border-radius: 5px;
+        white-space: pre-wrap;
+        word-break: break-all;
+    }
+</style>
 </head>
 <body>
 
 <h2>Generador de condiciones</h2>
 
-Campo: <input id="campo"><br><br>
-Operador: <input id="operador"><br><br>
-Valor: <input id="valor"><br><br>
+<label>Campo:</label><br>
+<input id="campo"><br><br>
+
+<label>Operador:</label><br>
+<input id="operador"><br><br>
+
+<label>Valor:</label><br>
+<input id="valor"><br><br>
 
 <button onclick="agregar()">Agregar condición</button>
 <button onclick="generar()">Generar JSON</button>
+<button onclick="copiar()">Copiar JSON</button>
 
 <h3>Condiciones agregadas</h3>
 <pre id="lista"></pre>
@@ -53,8 +82,22 @@ function agregar() {
 function generar() {
     const json = { condiciones: condiciones };
 
+    // JSON en formato compacto
     document.getElementById("json").textContent =
-        JSON.stringify(json, null, 2);
+        JSON.stringify(json);
+}
+
+function copiar() {
+    const texto = document.getElementById("json").textContent.trim();
+
+    if (!texto) {
+        alert("No hay JSON para copiar.");
+        return;
+    }
+
+    navigator.clipboard.writeText(texto)
+        .then(() => alert("JSON copiado al portapapeles ✔️"))
+        .catch(err => alert("Error al copiar: " + err));
 }
 </script>
 
