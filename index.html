@@ -3,19 +3,51 @@
 <head>
 <meta charset="utf-8">
 <title>Generar Regla JSON</title>
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        max-width: 700px;
+        margin: auto;
+        padding: 20px;
+    }
+    input {
+        width: 100%;
+        padding: 6px;
+        margin: 5px 0 10px 0;
+    }
+    button {
+        padding: 8px 14px;
+        margin-right: 10px;
+        cursor: pointer;
+    }
+    pre {
+        background: #f5f5f5;
+        padding: 10px;
+        border-radius: 5px;
+    }
+</style>
 </head>
 <body>
 
 <h2>Generador de condiciones</h2>
 
-Campo: <input id="campo"><br><br>
-Operador: <input id="operador"><br><br>
-Valor: <input id="valor"><br><br>
+<label>Campo:</label>
+<input id="campo">
+
+<label>Operador (ej: =, <, >, <=, >=, IN):</label>
+<input id="operador">
+
+<label>Valor:</label>
+<input id="valor">
+
+<label>Resultado:</label>
+<input id="resultado">
 
 <button onclick="agregar()">Agregar condición</button>
 <button onclick="generar()">Generar JSON</button>
+<button onclick="limpiar()">Limpiar</button>
 
-<h3>Condiciones</h3>
+<h3>Condiciones agregadas</h3>
 <pre id="lista"></pre>
 
 <h3>Resultado JSON</h3>
@@ -24,23 +56,58 @@ Valor: <input id="valor"><br><br>
 <script>
 let condiciones = [];
 
+// ---- Agregar condición ----
 function agregar() {
-    const campo = document.getElementById("campo").value;
-    const operador = document.getElementById("operador").value;
-    const valor = document.getElementById("valor").value;
+    const campo = document.getElementById("campo").value.trim();
+    const operador = document.getElementById("operador").value.trim();
+    const valor = document.getElementById("valor").value.trim();
+    const resultado = document.getElementById("resultado").value.trim();
+
+    if (!campo || !operador) {
+        alert("Campo y operador son obligatorios");
+        return;
+    }
+
+    let valorFinal = valor;
+
+    // convertir números
+    if (!isNaN(valor) && valor !== "") {
+        valorFinal = Number(valor);
+    }
 
     condiciones.push({
         campo: campo,
         operador: operador,
-        valor: isNaN(valor) ? valor : Number(valor)
+        valor: valorFinal,
+        resultado: resultado || null
     });
 
-    document.getElementById("lista").textContent = JSON.stringify(condiciones, null, 2);
+    // mostrar lista
+    document.getElementById("lista").textContent =
+        JSON.stringify(condiciones, null, 2);
+
+    // limpiar inputs
+    document.getElementById("valor").value = "";
+    document.getElementById("campo").focus();
 }
 
+
+// ---- Generar JSON ----
 function generar() {
-    const json = { condiciones: condiciones };
-    document.getElementById("json").textContent = JSON.stringify(json, null, 2);
+    const json = {
+        condiciones: condiciones
+    };
+
+    document.getElementById("json").textContent =
+        JSON.stringify(json, null, 2);
+}
+
+
+// ---- Limpiar todo ----
+function limpiar() {
+    condiciones = [];
+    document.getElementById("lista").textContent = "";
+    document.getElementById("json").textContent = "";
 }
 </script>
 
