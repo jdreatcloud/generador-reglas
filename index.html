@@ -138,11 +138,14 @@ function agregar() {
 }
 
 function generar() {
-    const json = { condiciones: condiciones };
+    // JSON compacto normal
+    const compacto = JSON.stringify(json);
 
-    // JSON compacto
-    document.getElementById("json").textContent =
-        JSON.stringify(json);
+    // JSON con comillas escapadas (para SQL o Postman)
+    const escapado = compacto.replace(/"/g, '\\"');
+
+    // mostrar el JSON escapado
+    document.getElementById("json").textContent = escapado;
 }
 
 function copiar() {
