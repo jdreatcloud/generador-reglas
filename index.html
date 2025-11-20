@@ -142,7 +142,7 @@ function generar() {
     const compacto = JSON.stringify(json);
 
     // JSON con comillas escapadas (para SQL o Postman)
-    const escapado = compacto.replace(/"/g, '\\"');
+    const escapado = JSON.stringify(json).replace(/\\/g, "\\\\").replace(/"/g, '\\"');
 
     // mostrar el JSON escapado
     document.getElementById("json").textContent = escapado;
